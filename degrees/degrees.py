@@ -91,9 +91,46 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    #Initialize a BFS.
+    frontier = StackFrontier()
+    frontier.add(Node(state=source,parent=None,action=None))
 
-    # TODO
-    raise NotImplementedError
+    #Setup the explored section
+    explored = set()
+
+    #Until a solution is found
+    while True:
+        #If the frontier is empty and no solution is found then there is no connection between the source and target.
+        if frontier.empty():
+            raise Exception("No Valid Solution")
+
+        #Extract a node from the frontier.
+        node = frontier.remove()
+
+        #If the node's person_id matches the id of the target the solution has been found.
+        if node.state == target:
+            movies = []
+            names = []
+            while node.parent is not None:
+                movies.append(node.action)
+                names.append(node.state)
+                node = node.parent
+            movies.reverse()
+            names.reverse()
+            solution = []
+            i = 0
+            while i < len(movies):
+                solution.append((movies[i],names[i]))
+                i += 1
+            return solution
+
+        #Add the explored node to the explored set after exploring it.
+        explored.add(node.state)
+
+        #Find the movies that the actor has played in and what other actors are in those movies.
+        for movie, name in neighbors_for_person(node.state):
+            if not frontier.contains_state(name) and name not in explored:
+                frontier.add(Node(state=name,parent=node,action=movie))
 
 
 def person_id_for_name(name):
